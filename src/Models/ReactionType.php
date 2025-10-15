@@ -1,25 +1,29 @@
 <?php
 
-namespace Vendor\Template\Models;
+namespace Yuges\Reactable\Models;
 
 use Carbon\Carbon;
+use Yuges\Reactable\Traits\HasTable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
- * @property string $id
+ * @property int $id
+ * 
+ * @property string $name
+ * @property string $icon
+ * @property int $weight
  * 
  * @property-read ?Carbon $created_at
  * @property-read ?Carbon $updated_at
  */
-class Template extends Model
+class ReactionType extends Model
 {
     use
-        HasUlids,
+        HasTable,
         HasFactory;
 
-    protected $table = 'templates';
+    protected $table = 'reaction_types';
 
     protected $guarded = ['id'];
 }
