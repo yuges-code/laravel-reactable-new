@@ -2,34 +2,43 @@
 
 namespace Yuges\Reactable\Providers;
 
-use TypeError;
+use Yuges\Package\Data\Package;
 use Yuges\Reactable\Config\Config;
 use Yuges\Reactable\Models\Reaction;
-use Illuminate\Support\ServiceProvider;
+use Database\Seeders\ReactionTypeSeeder;
+use Yuges\Reactable\Models\ReactionType;
 use Yuges\Reactable\Observers\ReactionObserver;
+use Yuges\Reactable\Exceptions\InvalidReaction;
+use Yuges\Package\Providers\PackageServiceProvider;
+use Yuges\Reactable\Observers\ReactionTypeObserver;
+use Yuges\Reactable\Exceptions\InvalidReactionType;
 
-class ReactableServiceProvider extends ServiceProvider
+class ReactableServiceProvider extends PackageServiceProvider
 {
-    public function boot(): void
-    {
-        $class = Config::getReactionClass(Reaction::class);
+    protected string $name = 'laravel-reactable';
 
-        if (! is_a(new $class, Reaction::class)) {
-            throw new TypeError('Invalid reaction model');
+    public function configure(Package $package): void
+    {
+        $reaction = Config::getReactionClass(Reaction::class);
+        $type = Config::getReactionTypeClass(ReactionType::class);
+
+        if (! is_a($reaction, Reaction::class, true)) {
+            throw InvalidReaction::doesNotImplementReaction($reaction);
         }
 
-        $class::observe(new ReactionObserver);
+        if (! is_a($type, ReactionType::class, true)) {
+            throw InvalidReactionType::doesNotImplementReactionType($type);
+        }
 
-        $this->publishes([
-            __DIR__.'/../../config/reactable.php' => config_path('reactable.php')
-        ], 'reactable-config');
-
-        $this->publishes([
-            __DIR__.'/../../database/migrations/' => database_path('migrations')
-        ], 'reactable-migrations');
-
-        $this->publishes([
-            __DIR__.'/../../database/seeders/' => database_path('seeders')
-        ], 'reactable-seeders');
+        $package
+            ->hasName($this->name)
+            ->hasConfig('reactable')
+            ->hasMigrations([
+                '000_create_reaction_types_table',
+                '001_create_reactions_table',
+            ])
+            ->hasSeeder(ReactionTypeSeeder::class)
+            ->hasObserver($reaction, Config::getReactionObserverClass(ReactionObserver::class))
+            ->hasObserver($type, Config::getReactionTypeObserverClass(ReactionTypeObserver::class));
     }
 }

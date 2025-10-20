@@ -24,7 +24,7 @@ class ToggleReactionAction
         return new static($reactable);
     }
 
-    public function execute(int|string|ReactionType|ReactionTypeEnum $type, Reactor $reactor = null): ?Reaction
+    public function execute(int|string|ReactionType|ReactionTypeEnum $type, ?Reactor $reactor = null): ?Reaction
     {
         $reactor ??= $this->getDefaultReactor();
 
@@ -40,19 +40,34 @@ class ToggleReactionAction
             throw new Exception('Type of reaction not found');
         }
 
-        $reaction = $this->reactable->reactions()->getQuery()->whereMorphedTo('reactor', $reactor)->first();
+        $attributes = [
+            'reactor_id' => $reactor?->getKey() ?? null,
+            'reactor_type' => $reactor?->getMorphClass() ?? null,
+            'reaction_type_id' => $type->getKey(),
+        ];
+
+        if (Config::getPermissionsDuplicate()) {
+            return $this->reactable->reactions()->create($attributes);
+        }
+
+        /** @var ?Reaction */
+        $reaction = $this->reactable->reactions()->getQuery()->whereMorphedTo(
+            Config::getReactorRelationName('reactor'),
+            $reactor,
+        )->first();
 
         if ($reaction) {
             $reaction->delete();
 
-            return null;
+            if ($reaction->reaction_type_id === $type->id) {
+                return null;
+            }
         }
 
-        return Config::getCreateReactionAction($this->reactable)->execute($type, $reactor);
-
+        return $this->reactable->reactions()->create($attributes);
     }
 
-    public function validateReactor(Reactor $reactor = null): void
+    public function validateReactor(?Reactor $reactor = null): void
     {
         if (! $reactor) {
             return;

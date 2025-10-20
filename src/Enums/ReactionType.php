@@ -9,6 +9,6 @@ enum ReactionType: int implements ReactionTypeInterface
 {
     use HasReactionTypeInterface;
 
-    case Like = 1;
-    case Dislike = 2;
+    case Like = 10;
+    case Dislike = 20;
 }

@@ -1,13 +1,16 @@
 <?php
 
-namespace Yuges\Package\Tests\Stubs\Models;
+namespace Yuges\Reactable\Tests\Stubs\Models;
 
-use Yuges\Package\Traits\HasTable;
-use Illuminate\Database\Eloquent\Model;
+use Yuges\Package\Models\Model;
+use Yuges\Reactable\Traits\CanReact;
+use Yuges\Reactable\Interfaces\Reactor;
 
-class User extends Model
+class User extends Model implements Reactor
 {
-    use HasTable;
+    use CanReact;
 
     protected $table = 'users';
+
+    protected $guarded = ['id'];
 }

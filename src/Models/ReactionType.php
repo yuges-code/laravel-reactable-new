@@ -2,26 +2,17 @@
 
 namespace Yuges\Reactable\Models;
 
-use Carbon\Carbon;
-use Yuges\Reactable\Traits\HasTable;
-use Illuminate\Database\Eloquent\Model;
+use Yuges\Package\Models\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
- * @property int $id
- * 
+ * @property int $weight
  * @property string $name
  * @property string $icon
- * @property int $weight
- * 
- * @property-read ?Carbon $created_at
- * @property-read ?Carbon $updated_at
  */
 class ReactionType extends Model
 {
-    use
-        HasTable,
-        HasFactory;
+    use HasFactory;
 
     protected $table = 'reaction_types';
 

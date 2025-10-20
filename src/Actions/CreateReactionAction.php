@@ -24,7 +24,7 @@ class CreateReactionAction
         return new static($reactable);
     }
 
-    public function execute(int|string|ReactionType|ReactionTypeEnum $type, Reactor $reactor = null): Reaction
+    public function execute(int|string|ReactionType|ReactionTypeEnum $type, ?Reactor $reactor = null): Reaction
     {
         $reactor ??= $this->getDefaultReactor();
 
@@ -50,12 +50,16 @@ class CreateReactionAction
             return $this->reactable->reactions()->create($attributes);
         }
 
-        $reaction = $this->reactable->reactions()->getQuery()->whereMorphedTo('reactor', $reactor)->first();
+        /** @var ?Reaction */
+        $reaction = $this->reactable->reactions()->getQuery()->whereMorphedTo(
+            Config::getReactorRelationName('reactor'),
+            $reactor,
+        )->first();
 
         return $reaction ?? $this->reactable->reactions()->create($attributes);
     }
 
-    public function validateReactor(Reactor $reactor = null): void
+    public function validateReactor(?Reactor $reactor = null): void
     {
         if (! $reactor) {
             return;

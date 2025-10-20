@@ -17,7 +17,10 @@ trait CanReact
 {
     public function reactions(): MorphMany
     {
-        return $this->morphMany(Config::getReactionClass(), 'reactor');
+        return $this->morphMany(
+            Config::getReactionClass(),
+            Config::getReactorRelationName('reactor'),
+        );
     }
 
     public function latestReaction(): MorphOne

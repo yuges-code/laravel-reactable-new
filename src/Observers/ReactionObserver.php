@@ -17,7 +17,7 @@ class ReactionObserver
         /** @todo reactable protected */
     }
 
-    public function deleted(Reaction $comment): void
+    public function deleted(Reaction $reaction): void
     {
 
     }

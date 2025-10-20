@@ -1,16 +1,17 @@
 <?php
 
+use Yuges\Package\Enums\KeyType;
 use Yuges\Reactable\Config\Config;
-use Illuminate\Support\Facades\Schema;
 use Yuges\Reactable\Models\ReactionType;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
+use Yuges\Package\Database\Schema\Schema;
+use Yuges\Package\Database\Schema\Blueprint;
+use Yuges\Package\Database\Migrations\Migration;
 
 return new class extends Migration
 {
-    public function __construct(protected string $table = 'reaction_types')
+    public function __construct()
     {
-        $this->$table = Config::getReactionTypeClass(ReactionType::class)::getTableName();
+        $this->table = Config::getReactionTypeClass(ReactionType::class)::getTableName();
     }
 
     public function up(): void
@@ -20,7 +21,9 @@ return new class extends Migration
         }
 
         Schema::create($this->table, function (Blueprint $table) {
-            $table->id();
+            if (Config::getReactionTypeKeyHas(true)) {
+                $table->key(Config::getReactionTypeKeyType(KeyType::BigInteger));
+            }
 
             $table->string('name')->unique();
             $table->string('icon')->unique();
@@ -28,10 +31,5 @@ return new class extends Migration
 
             $table->timestamps();
         });
-    }
-
-    public function down(): void
-    {
-        Schema::dropIfExists($this->table);
     }
 };
